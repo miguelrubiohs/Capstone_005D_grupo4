@@ -1,0 +1,61 @@
+
+
+create table historial_consentimiento (
+  id_consentimiento bigint primary key generated always as identity,
+  inicio_consentimiento date not null,
+  termino_consentimiento date,
+  estado_consentimiento int not null
+);
+
+create table usuarios (
+  id_usuario bigint primary key generated always as identity,
+  id_consentimiento int not null,
+  nombre_usuario text not null,
+  "contraseña" text not null,
+  primer_nombre text not null,
+  segundo_nombre text,
+  primer_apellido text not null,
+  segundo_apellido text,
+  rut text not null unique,
+  direccion text,
+  telefono int,
+  correo_electronico text not null unique,
+  tipo_usuario text not null check (tipo_usuario in ('Usuarios', 'Administradores')) default 'Usuarios',
+  constraint fk_consentimiento foreign key (id_consentimiento) references historial_consentimiento (id_consentimiento) on delete set null
+);
+
+create table empresa (
+  id_empresa bigint primary key generated always as identity,
+  nombre_usuario_empresa text,
+  "contraseña_empresa" text,
+  nombre text not null,
+  tipo_empresa text not null,
+  direccion text
+);
+
+create table datos_encriptados (
+  id_dato bigint primary key generated always as identity,
+  id_empresa int references empresa (id_empresa) on delete cascade,
+  tipo_dato text,
+  finalidad text
+);
+
+create table datos_encriptados_por_usuario (
+  id_datos_empresa bigint primary key generated always as identity,
+  id_dato int references datos_encriptados (id_dato) on delete cascade,
+  id_usuario int references usuarios (id_usuario) on delete cascade
+);
+
+create table ciclo_vida_dato (
+  id_ciclo_vida bigint primary key generated always as identity,
+  id_dato int references datos_encriptados (id_dato) on delete cascade,
+  estado_dato int not null,
+  fecha_creacion_dato date not null,
+  ultimo_uso_dato date not null
+);
+
+create table historial_uso_dato (
+  id_historial bigint primary key generated always as identity,
+  id_dato int references datos_encriptados (id_dato) on delete cascade,
+  cantidad_usos int not null
+);
